@@ -8,33 +8,33 @@
 #import "SineWave.h"
 
 typedef struct {
-    @defs(SineWave);
+	@defs(SineWave);
 } SinewaveDef;
 
 @implementation SineWave
-OSStatus    RenderCallback(void                            *inRefCon,
+OSStatus    RenderCallback(void                          *inRefCon,
                            AudioUnitRenderActionFlags    *ioActionFlags,
-                           const AudioTimeStamp            *inTimeStamp,
+                           const AudioTimeStamp          *inTimeStamp,
                            UInt32                        inBusNumber,
                            UInt32                        inNumberFrames,
-                           AudioBufferList                *ioData)
+                           AudioBufferList               *ioData)
 {
-    SinewaveDef* def = inRefCon;
-    float samplingRate = 44100;
-    float freq = def->frequency * 2 * M_PI / samplingRate;
+	SinewaveDef* def = inRefCon;
+	float samplingRate = 44100;
+	float freq = def->frequency * 2 * M_PI / samplingRate;
 
-    float *outL = ioData->mBuffers[0].mData;
-    float *outR = ioData->mBuffers[1].mData;
+	float *outL = ioData->mBuffers[0].mData;
+	float *outR = ioData->mBuffers[1].mData;
 
-    int i;
-    for (i=0; i< inNumberFrames; i++){
-        float wave = sin(def->phase);
-        *outL++ = wave;
-        *outR++ = wave;
+	int i;
+	for (i=0; i< inNumberFrames; i++){
+		float wave = sin(def->phase);
+		*outL++ = wave;
+		*outR++ = wave;
 
-        def->phase = def->phase + freq;
-    }
-    return noErr;
+		def->phase = def->phase + freq;
+	}
+	return noErr;
 }
 
 -(void)awakeFromNib{
@@ -50,32 +50,32 @@ OSStatus    RenderCallback(void                            *inRefCon,
 	Component comp = FindNextComponent(NULL, &cd);
 	OpenAComponent(comp, &defaultOutputUnit);
 
-    AURenderCallbackStruct input;
+	AURenderCallbackStruct input;
 	input.inputProc = RenderCallback;
 	input.inputProcRefCon = self;
 
 	AudioUnitSetProperty (defaultOutputUnit,
-				kAudioUnitProperty_SetRenderCallback,
-				kAudioUnitScope_Input,
-				0,
-				&input,
-				sizeof(input));
+												kAudioUnitProperty_SetRenderCallback,
+												kAudioUnitScope_Input,
+												0,
+												&input,
+												sizeof(input));
 
 	AudioUnitInitialize(defaultOutputUnit);
 
 	[self getDji];
 
-    [NSTimer scheduledTimerWithTimeInterval:30.0f
-            target:self
-            selector:@selector(getDji)
-            userInfo:nil
-            repeats:YES];
+	[NSTimer scheduledTimerWithTimeInterval:30.0f
+					 target:self
+					 selector:@selector(getDji)
+					 userInfo:nil
+					 repeats:YES];
 
 	AudioOutputUnitStart (defaultOutputUnit);
 }
 
 -(void)getDji {
-    webView = [[WebView alloc] init];
+	webView = [[WebView alloc] init];
 
 	NSURL* url = [NSURL URLWithString:@"http://dji.appjet.net/"];
 	NSString* json = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
